@@ -8,15 +8,12 @@
   "dependencies": {
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
     "react-dom": "latest",
     "tailwindcss": "^3.4.17",
     "postcss": "latest",
     "autoprefixer": "latest",
-    "framer-motion": "latest",
-    "hls.js": "latest",
-    "lucide-react": "latest"
+    "hls.js": "latest"
   },
   "devDependencies": {}
 }

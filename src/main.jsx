@@ -1,37 +1,33 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Hls from "hls.js";
 import "./index.css";
 
 const navLinks = ["Work", "Services", "About", "Blog", "Contact"];
-
-const avatarUrls = [
-  "https://i.pravatar.cc/80?img=12",
-  "https://i.pravatar.cc/80?img=32",
-  "https://i.pravatar.cc/80?img=47",
-];
 
 const projects = [
   {
     title: "Nova Finance",
     category: "Brand & Web Design",
-    image: "https://motionsites.ai/assets/hero-grow-ai-preview-BlQ8tAQ-.gif",
+    tone: "from-zinc-50 via-cyan-200 to-slate-700",
+    stat: "+184%",
   },
   {
     title: "Pulse Health",
     category: "AI Web Development",
-    image: "https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif",
+    tone: "from-emerald-100 via-teal-300 to-slate-900",
+    stat: "2.1s",
   },
   {
     title: "Drift Studios",
     category: "Website Optimization",
-    image: "https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif",
+    tone: "from-fuchsia-100 via-violet-400 to-black",
+    stat: "98",
   },
   {
     title: "Arc Commerce",
     category: "Brand & Development",
-    image: "https://motionsites.ai/assets/hero-neuralyn-preview-Br4FRDQA.gif",
+    tone: "from-amber-100 via-orange-300 to-stone-950",
+    stat: "$4.8M",
   },
 ];
 
@@ -39,11 +35,38 @@ const services = ["Brand Design", "AI Web Design", "AI Web Development", "Optimi
 const company = ["About", "Work", "Blog", "Careers"];
 const social = ["Twitter", "LinkedIn", "Instagram", "Dribbble"];
 
+function useInView({ rootMargin = "180px 0px", threshold = 0.12 } = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || inView) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin, threshold },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [inView, rootMargin, threshold]);
+
+  return [ref, inView];
+}
+
 function Navbar() {
   return (
-    <header className="fixed left-0 top-0 z-50 w-full px-8 py-6">
+    <header className="fixed left-0 top-0 z-50 w-full px-5 py-5 md:px-8 md:py-6">
       <nav className="mx-auto flex max-w-7xl items-center justify-between">
-        <a href="#" className="font-body text-xl font-semibold tracking-tight text-foreground">
+        <a href="#" className="font-body text-lg font-semibold tracking-tight text-foreground md:text-xl">
           VIRALMEDIA
         </a>
 
@@ -61,7 +84,7 @@ function Navbar() {
 
         <a
           href="#contact"
-          className="liquid-glass-strong rounded-full px-6 py-2.5 font-body text-sm font-medium text-foreground"
+          className="liquid-glass-strong rounded-full px-5 py-2.5 font-body text-sm font-medium text-foreground md:px-6"
         >
           Get Started
         </a>
@@ -72,73 +95,53 @@ function Navbar() {
 
 function Hero() {
   return (
-    <section className="relative h-screen w-full overflow-hidden" id="home">
-      <video
-        className="absolute inset-0 h-[calc(100%+100px)] w-full -translate-y-[100px] object-cover object-bottom md:h-full md:translate-y-0"
+    <section className="hero-stage relative min-h-[100svh] w-full overflow-hidden" id="home">
+      <LazyVideo
+        className="hero-video absolute inset-0 hidden h-full w-full object-cover object-bottom opacity-70 md:block"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260326_073936_8dd07fdb-4f6b-4220-a3f0-9dedfaab0c88.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
+        eager
       />
-      <div className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-background to-transparent" />
+      <div className="hero-light absolute inset-0" />
+      <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background via-background/80 to-transparent" />
 
-      <div className="relative z-10 flex h-full items-end px-8 pb-10 md:pb-20">
+      <div className="relative z-10 flex min-h-[100svh] items-end px-5 pb-10 md:px-8 md:pb-20">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {avatarUrls.map((url) => (
-                <img
-                  key={url}
-                  src={url}
-                  alt=""
-                  className="h-8 w-8 rounded-full border-2 border-background object-cover"
-                />
+          <div className="hero-enter mb-5 flex items-center gap-3">
+            <div className="flex -space-x-2" aria-hidden="true">
+              {["VM", "AI", "UX"].map((label) => (
+                <span
+                  key={label}
+                  className="grid h-8 w-8 place-items-center rounded-full border-2 border-background bg-white text-[9px] font-semibold text-black"
+                >
+                  {label}
+                </span>
               ))}
             </div>
             <p className="font-body text-sm text-muted-foreground">7,000+ brands already transformed</p>
           </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, ease: "easeOut" }}
-            className="font-body text-3xl font-medium tracking-[-1px] text-foreground sm:text-5xl md:text-6xl md:tracking-[-2px] lg:text-7xl"
-          >
-            Build Stunning with{" "}
-            <span className="font-accent font-normal italic">AI Magic</span>
-          </motion.h1>
+          <h1 className="hero-enter hero-enter-delay-1 font-body text-4xl font-medium leading-[0.95] tracking-[-1px] text-foreground sm:text-5xl md:text-6xl md:tracking-[-2px] lg:text-7xl">
+            Build Stunning with <span className="font-accent font-normal italic">AI Magic</span>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-            className="mt-5 whitespace-normal font-body text-sm text-muted-foreground md:whitespace-nowrap md:text-lg"
-          >
+          <p className="hero-enter hero-enter-delay-2 mt-5 max-w-2xl whitespace-normal font-body text-base leading-7 text-muted-foreground md:whitespace-nowrap md:text-lg">
             AI-powered websites crafted for beauty, speed, and lasting performance.
-          </motion.p>
+          </p>
 
-          <motion.form
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.22, ease: "easeOut" }}
-            className="liquid-glass mt-8 flex w-full max-w-lg items-center gap-2 rounded-full p-1.5 md:p-2"
-          >
+          <form className="hero-enter hero-enter-delay-3 liquid-glass mt-8 flex w-full max-w-lg items-center gap-2 rounded-full p-1.5 md:p-2">
             <input
               type="email"
               aria-label="Email address"
               placeholder="Enter your email"
               className="min-w-0 flex-1 bg-transparent px-4 font-body text-sm text-foreground outline-none placeholder:text-muted-foreground"
             />
-            <motion.button
+            <button
               type="submit"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-full bg-foreground px-5 py-3 font-body text-xs font-semibold tracking-wide text-background sm:px-7"
+              className="rounded-full bg-foreground px-5 py-3 font-body text-xs font-semibold tracking-wide text-background transition-transform hover:scale-[1.03] active:scale-[0.98] sm:px-7"
             >
               SUBSCRIBE
-            </motion.button>
-          </motion.form>
+            </button>
+          </form>
         </div>
       </div>
     </section>
@@ -146,50 +149,33 @@ function Hero() {
 }
 
 function ScrollRevealText({ text }) {
-  const ref = useRef(null);
   const words = text.split(" ");
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 0.9", "start 0.3"],
-  });
 
   return (
-    <p
-      ref={ref}
-      className="relative font-body text-3xl font-medium leading-relaxed tracking-[-1px] text-foreground md:text-4xl lg:text-5xl"
-    >
-      {words.map((word, index) => {
-        return (
-          <RevealWord
-            key={`${word}-${index}`}
-            index={index}
-            total={words.length}
-            progress={scrollYProgress}
-            word={word}
-            trailingSpace={index < words.length - 1}
-          />
-        );
-      })}
+    <p className="relative font-body text-3xl font-medium leading-relaxed tracking-[-1px] text-foreground md:text-4xl lg:text-5xl">
+      {words.map((word, index) => (
+        <span
+          key={`${word}-${index}`}
+          className="reveal-word inline-block"
+          style={{ "--word-delay": `${Math.min(index * 18, 780)}ms` }}
+        >
+          {word}
+          {index < words.length - 1 ? "\u00A0" : ""}
+        </span>
+      ))}
     </p>
   );
 }
 
-function RevealWord({ index, total, progress, word, trailingSpace }) {
-  const start = index / total;
-  const end = (index + 1) / total;
-  const opacity = useTransform(progress, [start, end], [0.15, 1]);
-
-  return (
-    <motion.span style={{ opacity }} className="inline-block">
-      {word}
-      {trailingSpace ? "\u00A0" : ""}
-    </motion.span>
-  );
-}
-
 function About() {
+  const [ref, inView] = useInView();
+
   return (
-    <section id="about" className="mx-auto max-w-4xl bg-background px-8 py-32 text-center">
+    <section
+      id="about"
+      ref={ref}
+      className={`mx-auto max-w-4xl bg-background px-5 py-24 text-center md:px-8 md:py-32 ${inView ? "is-visible" : ""}`}
+    >
       <ScrollRevealText text="We blend artificial intelligence with human creativity to craft digital experiences that captivate, convert, and scale — building ambitious brands that truly thrive and lead in the modern web." />
     </section>
   );
@@ -197,151 +183,194 @@ function About() {
 
 function SelectedWork() {
   return (
-    <section id="work" className="relative z-10 mx-auto max-w-6xl bg-background px-8 pb-16 py-32">
+    <section id="work" className="relative z-10 mx-auto max-w-6xl bg-background px-5 pb-16 py-24 md:px-8 md:py-32">
       <h2 className="text-center font-body text-4xl font-medium tracking-[-2px] text-foreground md:text-5xl">
         Selected <span className="font-accent font-normal italic">Work</span>
       </h2>
-      <p className="mx-auto mb-16 mt-4 max-w-2xl text-center font-body text-lg text-muted-foreground">
+      <p className="mx-auto mb-12 mt-4 max-w-2xl text-center font-body text-base leading-7 text-muted-foreground md:mb-16 md:text-lg">
         A curated collection of projects where bold design meets intelligent technology.
       </p>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {projects.map((project, index) => (
-          <motion.article
-            key={project.title}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.65, delay: index * 0.1, ease: "easeOut" }}
-            className="group"
-          >
-            <div className="liquid-glass aspect-[4/3] overflow-hidden rounded-2xl">
-              <img
-                src={project.image}
-                alt={project.title}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-              />
-            </div>
-            <h3 className="mt-5 font-body text-xl font-medium text-foreground">{project.title}</h3>
-            <p className="mt-1 font-body text-sm text-muted-foreground">{project.category}</p>
-          </motion.article>
+          <ProjectCard key={project.title} project={project} index={index} />
         ))}
       </div>
     </section>
   );
 }
 
+function ProjectCard({ project, index }) {
+  const [ref, inView] = useInView();
+
+  return (
+    <article
+      ref={ref}
+      className={`project-card group ${inView ? "is-visible" : ""}`}
+      style={{ "--card-delay": `${index * 90}ms` }}
+    >
+      <div className="project-preview liquid-glass aspect-[4/3] overflow-hidden rounded-2xl">
+        <div className={`absolute inset-0 bg-gradient-to-br ${project.tone}`} />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.7),transparent_28%),radial-gradient(circle_at_70%_75%,rgba(255,255,255,0.26),transparent_34%)]" />
+        <div className="absolute left-[8%] right-[8%] top-[10%] rounded-xl border border-white/20 bg-black/45 p-4 backdrop-blur-md">
+          <div className="mb-8 flex items-center justify-between">
+            <span className="h-2 w-20 rounded-full bg-white/70" />
+            <span className="h-8 w-8 rounded-full bg-white/20" />
+          </div>
+          <div className="grid grid-cols-[1fr_auto] items-end gap-4">
+            <div>
+              <span className="mb-3 block h-3 w-3/4 rounded-full bg-white/80" />
+              <span className="block h-3 w-1/2 rounded-full bg-white/35" />
+            </div>
+            <strong className="font-body text-3xl font-semibold text-white">{project.stat}</strong>
+          </div>
+        </div>
+        <div className="absolute bottom-[9%] left-[8%] right-[8%] grid grid-cols-3 gap-2">
+          <span className="h-16 rounded-xl bg-white/15 backdrop-blur-md" />
+          <span className="h-16 rounded-xl bg-white/25 backdrop-blur-md" />
+          <span className="h-16 rounded-xl bg-white/10 backdrop-blur-md" />
+        </div>
+      </div>
+      <h3 className="mt-5 font-body text-xl font-medium text-foreground">{project.title}</h3>
+      <p className="mt-1 font-body text-sm text-muted-foreground">{project.category}</p>
+    </article>
+  );
+}
+
 function VideoShowcase() {
   return (
-    <section className="relative z-0 -mt-[325px] h-[650px] overflow-hidden">
-      <video
-        className="absolute inset-0 h-full w-full object-cover"
+    <section className="showcase-stage relative z-0 -mt-24 h-[520px] overflow-hidden md:-mt-[260px] md:h-[650px]">
+      <LazyVideo
+        className="absolute inset-0 hidden h-full w-full object-cover opacity-80 md:block"
         src="https://media.cleanshot.cloud/media/21620/nKosRonaEKSufJVJ4VtouFhOPkqgJ3dPoQ8ZP52S.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
       />
+      <div className="showcase-grid absolute inset-0" />
       <div className="absolute inset-x-0 top-0 z-10 h-32 bg-gradient-to-b from-background to-transparent" />
       <div className="absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 }
 
+function LazyVideo({ src, className, eager = false }) {
+  const [ref, inView] = useInView({ rootMargin: eager ? "900px 0px" : "260px 0px" });
+  const [canLoad, setCanLoad] = useState(false);
+
+  useEffect(() => {
+    const saveData = navigator.connection?.saveData;
+    if (!inView || saveData) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setCanLoad(true), eager ? 900 : 150);
+    return () => window.clearTimeout(timer);
+  }, [eager, inView]);
+
+  return (
+    <video
+      ref={ref}
+      className={className}
+      src={canLoad ? src : undefined}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="none"
+    />
+  );
+}
+
 function HlsBackgroundVideo() {
   const videoRef = useRef(null);
+  const [ref, inView] = useInView({ rootMargin: "280px 0px" });
 
   useEffect(() => {
     const video = videoRef.current;
     const source = "https://stream.mux.com/4IMYGcL01xjs7ek5ANO17JC4VQVUTsojZlnw4fXzwSxc.m3u8";
     let hls;
+    let cancelled = false;
 
-    if (!video) {
+    const canUseDesktopMedia = window.matchMedia("(min-width: 768px)").matches;
+
+    if (!video || !inView || navigator.connection?.saveData || !canUseDesktopMedia) {
       return undefined;
     }
 
-    if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(source);
-      hls.attachMedia(video);
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = source;
-    }
+    const start = async () => {
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = source;
+        return;
+      }
+
+      const { default: Hls } = await import("hls.js");
+      if (!cancelled && Hls.isSupported()) {
+        hls = new Hls({ capLevelToPlayerSize: true, startLevel: 0 });
+        hls.loadSource(source);
+        hls.attachMedia(video);
+      }
+    };
+
+    const timer = window.setTimeout(start, 200);
 
     return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
       if (hls) {
         hls.destroy();
       }
     };
-  }, []);
+  }, [inView]);
 
   return (
-    <video
-      ref={videoRef}
-      className="absolute inset-0 h-full w-full object-cover"
-      autoPlay
-      loop
-      muted
-      playsInline
-    />
+    <div ref={ref} className="absolute inset-0">
+      <video
+        ref={videoRef}
+        className="absolute inset-0 hidden h-full w-full object-cover opacity-75 md:block"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="none"
+      />
+    </div>
   );
 }
 
 function CTA() {
-  const container = {
-    hidden: {},
-    show: {
-      transition: {
-        staggerChildren: 0.12,
-      },
-    },
-  };
-  const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
-  };
+  const [ref, inView] = useInView();
 
   return (
     <section
       id="contact"
-      className="relative z-10 flex h-screen w-full items-center justify-center overflow-hidden px-8"
+      ref={ref}
+      className={`cta-stage relative z-10 flex min-h-[100svh] w-full items-center justify-center overflow-hidden px-5 md:px-8 ${inView ? "is-visible" : ""}`}
     >
       <HlsBackgroundVideo />
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-black/35" />
       <div className="absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-background to-transparent" />
       <div className="absolute inset-x-0 bottom-0 z-10 h-40 bg-gradient-to-t from-background to-transparent" />
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.35 }}
-        className="relative z-20 mx-auto max-w-3xl text-center"
-      >
-        <motion.h2
-          variants={item}
-          className="font-body text-4xl font-medium tracking-[-2px] text-foreground md:text-5xl lg:text-6xl"
-        >
+      <div className="relative z-20 mx-auto max-w-3xl text-center">
+        <h2 className="cta-enter font-body text-4xl font-medium tracking-[-2px] text-foreground md:text-5xl lg:text-6xl">
           Ready to <span className="font-accent font-normal italic">Transform</span> Your Brand?
-        </motion.h2>
-        <motion.p variants={item} className="mb-10 mt-6 font-body text-lg text-muted-foreground">
+        </h2>
+        <p className="cta-enter cta-enter-delay-1 mb-10 mt-6 font-body text-lg text-muted-foreground">
           Let's build something extraordinary together.
-        </motion.p>
-        <motion.div variants={item} className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+        </p>
+        <div className="cta-enter cta-enter-delay-2 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href="mailto:hello@viralmedia.ai"
-            className="rounded-full bg-foreground px-10 py-4 font-body text-sm font-semibold tracking-wide text-background"
+            className="rounded-full bg-foreground px-10 py-4 font-body text-sm font-semibold tracking-wide text-background transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
             START A PROJECT
           </a>
           <a
             href="#"
-            className="liquid-glass-strong rounded-full px-10 py-4 font-body text-sm font-semibold tracking-wide text-foreground"
+            className="liquid-glass-strong rounded-full px-10 py-4 font-body text-sm font-semibold tracking-wide text-foreground transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
             BOOK A CALL
           </a>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -368,7 +397,7 @@ function FooterColumn({ title, links }) {
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-background px-8 py-16">
+    <footer className="border-t border-border bg-background px-5 py-16 md:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-4">
           <div>
