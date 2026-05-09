@@ -8,27 +8,29 @@ const projects = [
   {
     title: "Nova Finance",
     category: "Brand & Web Design",
-    tone: "from-zinc-50 via-cyan-200 to-slate-700",
-    stat: "+184%",
+    image: "https://motionsites.ai/assets/hero-grow-ai-preview-BlQ8tAQ-.gif",
   },
   {
     title: "Pulse Health",
     category: "AI Web Development",
-    tone: "from-emerald-100 via-teal-300 to-slate-900",
-    stat: "2.1s",
+    image: "https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif",
   },
   {
     title: "Drift Studios",
     category: "Website Optimization",
-    tone: "from-fuchsia-100 via-violet-400 to-black",
-    stat: "98",
+    image: "https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif",
   },
   {
     title: "Arc Commerce",
     category: "Brand & Development",
-    tone: "from-amber-100 via-orange-300 to-stone-950",
-    stat: "$4.8M",
+    image: "https://motionsites.ai/assets/hero-neuralyn-preview-Br4FRDQA.gif",
   },
+];
+
+const avatarUrls = [
+  "https://i.pravatar.cc/80?img=12",
+  "https://i.pravatar.cc/80?img=32",
+  "https://i.pravatar.cc/80?img=47",
 ];
 
 const services = ["Brand Design", "AI Web Design", "AI Web Development", "Optimization"];
@@ -42,6 +44,11 @@ function useInView({ rootMargin = "180px 0px", threshold = 0.12 } = {}) {
   useEffect(() => {
     const node = ref.current;
     if (!node || inView) {
+      return undefined;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      setInView(true);
       return undefined;
     }
 
@@ -97,7 +104,7 @@ function Hero() {
   return (
     <section className="hero-stage relative min-h-[100svh] w-full overflow-hidden" id="home">
       <LazyVideo
-        className="hero-video absolute inset-0 hidden h-full w-full object-cover object-bottom opacity-70 md:block"
+        className="hero-video absolute inset-0 h-[calc(100%+100px)] w-full -translate-y-[100px] object-cover object-bottom opacity-80 md:h-full md:translate-y-0"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260326_073936_8dd07fdb-4f6b-4220-a3f0-9dedfaab0c88.mp4"
         eager
       />
@@ -107,14 +114,18 @@ function Hero() {
       <div className="relative z-10 flex min-h-[100svh] items-end px-5 pb-10 md:px-8 md:pb-20">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
           <div className="hero-enter mb-5 flex items-center gap-3">
-            <div className="flex -space-x-2" aria-hidden="true">
-              {["VM", "AI", "UX"].map((label) => (
-                <span
-                  key={label}
-                  className="grid h-8 w-8 place-items-center rounded-full border-2 border-background bg-white text-[9px] font-semibold text-black"
-                >
-                  {label}
-                </span>
+            <div className="flex -space-x-2">
+              {avatarUrls.map((url) => (
+                <img
+                  key={url}
+                  src={url}
+                  alt=""
+                  width="32"
+                  height="32"
+                  loading="eager"
+                  decoding="async"
+                  className="h-8 w-8 rounded-full border-2 border-background bg-white object-cover"
+                />
               ))}
             </div>
             <p className="font-body text-sm text-muted-foreground">7,000+ brands already transformed</p>
@@ -210,26 +221,7 @@ function ProjectCard({ project, index }) {
       style={{ "--card-delay": `${index * 90}ms` }}
     >
       <div className="project-preview liquid-glass aspect-[4/3] overflow-hidden rounded-2xl">
-        <div className={`absolute inset-0 bg-gradient-to-br ${project.tone}`} />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.7),transparent_28%),radial-gradient(circle_at_70%_75%,rgba(255,255,255,0.26),transparent_34%)]" />
-        <div className="absolute left-[8%] right-[8%] top-[10%] rounded-xl border border-white/20 bg-black/45 p-4 backdrop-blur-md">
-          <div className="mb-8 flex items-center justify-between">
-            <span className="h-2 w-20 rounded-full bg-white/70" />
-            <span className="h-8 w-8 rounded-full bg-white/20" />
-          </div>
-          <div className="grid grid-cols-[1fr_auto] items-end gap-4">
-            <div>
-              <span className="mb-3 block h-3 w-3/4 rounded-full bg-white/80" />
-              <span className="block h-3 w-1/2 rounded-full bg-white/35" />
-            </div>
-            <strong className="font-body text-3xl font-semibold text-white">{project.stat}</strong>
-          </div>
-        </div>
-        <div className="absolute bottom-[9%] left-[8%] right-[8%] grid grid-cols-3 gap-2">
-          <span className="h-16 rounded-xl bg-white/15 backdrop-blur-md" />
-          <span className="h-16 rounded-xl bg-white/25 backdrop-blur-md" />
-          <span className="h-16 rounded-xl bg-white/10 backdrop-blur-md" />
-        </div>
+        <LazyImage src={project.image} alt={`${project.title} project preview`} />
       </div>
       <h3 className="mt-5 font-body text-xl font-medium text-foreground">{project.title}</h3>
       <p className="mt-1 font-body text-sm text-muted-foreground">{project.category}</p>
@@ -241,7 +233,7 @@ function VideoShowcase() {
   return (
     <section className="showcase-stage relative z-0 -mt-24 h-[520px] overflow-hidden md:-mt-[260px] md:h-[650px]">
       <LazyVideo
-        className="absolute inset-0 hidden h-full w-full object-cover opacity-80 md:block"
+        className="absolute inset-0 h-full w-full object-cover opacity-85"
         src="https://media.cleanshot.cloud/media/21620/nKosRonaEKSufJVJ4VtouFhOPkqgJ3dPoQ8ZP52S.mp4"
       />
       <div className="showcase-grid absolute inset-0" />
@@ -261,7 +253,12 @@ function LazyVideo({ src, className, eager = false }) {
       return undefined;
     }
 
-    const timer = window.setTimeout(() => setCanLoad(true), eager ? 900 : 150);
+    if (eager) {
+      setCanLoad(true);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setCanLoad(true), 150);
     return () => window.clearTimeout(timer);
   }, [eager, inView]);
 
@@ -274,8 +271,26 @@ function LazyVideo({ src, className, eager = false }) {
       loop
       muted
       playsInline
-      preload="none"
+      preload={eager ? "metadata" : "none"}
     />
+  );
+}
+
+function LazyImage({ src, alt }) {
+  const [ref, inView] = useInView({ rootMargin: "360px 0px", threshold: 0.01 });
+
+  return (
+    <div ref={ref} className="project-media absolute inset-0">
+      {inView ? (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -289,9 +304,7 @@ function HlsBackgroundVideo() {
     let hls;
     let cancelled = false;
 
-    const canUseDesktopMedia = window.matchMedia("(min-width: 768px)").matches;
-
-    if (!video || !inView || navigator.connection?.saveData || !canUseDesktopMedia) {
+    if (!video || !inView || navigator.connection?.saveData) {
       return undefined;
     }
 
@@ -324,7 +337,7 @@ function HlsBackgroundVideo() {
     <div ref={ref} className="absolute inset-0">
       <video
         ref={videoRef}
-        className="absolute inset-0 hidden h-full w-full object-cover opacity-75 md:block"
+        className="absolute inset-0 h-full w-full object-cover opacity-75"
         autoPlay
         loop
         muted
